@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.myassignment.ui.add_or_edit_todo_screen.AddOrUpdateTodoScreen
+import com.example.myassignment.ui.map_screen.MapScreen
 import com.example.myassignment.ui.todos_screen.TodosScreen
 import com.example.myassignment.util.Constants.INSERT
 import com.example.myassignment.util.Constants.UPDATE
@@ -44,6 +45,13 @@ fun MyNavHost(
                 uri = uri.value,
                 typeOfOperation = typeOfOperation
             )
+        }
+
+        composable(
+            route = Screen.MapScreen.route + "/{id}",
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) {
+            MapScreen(navController = navController)
         }
     }
 }

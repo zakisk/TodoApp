@@ -20,9 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.example.myassignment.data.entities.Todo
-import com.example.myassignment.domain.model.Location
 import com.example.myassignment.ui.theme.LocalSpacing
 import com.example.myassignment.util.asFormatted
 
@@ -33,11 +31,11 @@ fun TodoListItem(
     actions: List<String>,
     onItemClicked: (Todo) -> Unit,
     onOptionsMenuSelected: (String, Todo) -> Unit,
+    onLocationClicked: (Todo) -> Unit
 ) {
 
     val smallSpacing = LocalSpacing.current.small
     val shape = RoundedCornerShape(4.dp)
-    val showMap = remember { mutableStateOf(false) }
     val expanded = remember { mutableStateOf(false) }
 
     Row(
@@ -91,7 +89,7 @@ fun TodoListItem(
                     .clip(CircleShape)
                     .clickable {
                         if (todo.location != null) {
-                            showMap.value = true
+                            onLocationClicked(todo)
                         }
                     }
                     .padding(smallSpacing)
@@ -123,15 +121,4 @@ fun TodoListItem(
 
     }
 
-    if (showMap.value) {
-        MapDialog(location = todo.location!!) { showMap.value = false }
-    }
-
-}
-
-@Composable
-fun MapDialog(location: Location, onCloseClicked: () -> Unit) {
-    Dialog(onDismissRequest = { }) {
-        ReadMap(location = location, onCloseClicked = onCloseClicked)
-    }
 }

@@ -1,7 +1,6 @@
 package com.example.myassignment.ui.todos_screen
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -49,44 +48,48 @@ fun TodosScreen(
 
     val onOptionsMenuSelected: (String, Todo) -> Unit = { action, todo ->
         viewModel.onOptionMenuSelected(actions.indexOf(action), todo)
-        context.showToast("Successfully Removed")
+        if (action != actions[0]) {
+            context.showToast("Successfully Removed")
+        }
+    }
+
+    val onLocationClicked: (Todo) -> Unit = {
+        navController.navigate(Screen.MapScreen.route + "/${it.id}")
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = "TODOs",
-                style = MaterialTheme.typography.h4,
-                fontWeight = FontWeight.W900,
-                fontFamily = FontFamily.Monospace,
-                modifier = Modifier.padding(spacing.medium)
-            )
+        val allTodos = viewModel.allTodos.collectAsState(emptyList())
 
-            Div()
+        LazyColumn(modifier = Modifier.padding(bottom = 96.dp)) {
+            item {
+                Text(
+                    text = "TODOs",
+                    style = MaterialTheme.typography.h4,
+                    fontWeight = FontWeight.W900,
+                    fontFamily = FontFamily.Monospace,
+                    modifier = Modifier.padding(spacing.medium)
+                )
 
-            Box(modifier = Modifier.fillMaxSize()) {
-
-                val allTodos = viewModel.allTodos.collectAsState(emptyList())
-
-                LazyColumn(modifier = Modifier.padding(bottom = 96.dp)) {
-                    showProgressBar.value = true
-                    items(allTodos.value) { todo ->
-                        TodoListItem(
-                            todo = todo,
-                            actions = actions,
-                            onItemClicked = onItemClicked,
-                            onOptionsMenuSelected = onOptionsMenuSelected
-                        )
-                        Div()
-                    }
-                    showProgressBar.value = false
-                }
-
-                if (allTodos.value.isEmpty()) {
-                    EmptyList()
-                }
+                Div()
             }
+            showProgressBar.value = true
+            items(allTodos.value) { todo ->
+                TodoListItem(
+                    todo = todo,
+                    actions = actions,
+                    onItemClicked = onItemClicked,
+                    onOptionsMenuSelected = onOptionsMenuSelected,
+                    onLocationClicked = onLocationClicked
+                )
+                Div()
+            }
+            showProgressBar.value = false
         }
+
+        if (allTodos.value.isEmpty()) {
+            EmptyList()
+        }
+
 
         if (showProgressBar.value) {
             CircularProgressIndicator(
@@ -95,6 +98,7 @@ fun TodosScreen(
         }
 
         MyFloatingActionButton { navController.navigate(Screen.AddOrUpdateTodoScreen.route + "/-1") }
+
     }
 
 }
