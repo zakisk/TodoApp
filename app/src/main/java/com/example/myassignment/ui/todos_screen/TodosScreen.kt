@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -29,9 +30,8 @@ import com.example.myassignment.ui.todos_screen.components.Div
 import com.example.myassignment.ui.todos_screen.components.EmptyList
 import com.example.myassignment.ui.todos_screen.components.MyFloatingActionButton
 import com.example.myassignment.ui.todos_screen.components.TodoListItem
+import com.example.myassignment.util.showToast
 
-
-//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
 
 @Composable
 fun TodosScreen(
@@ -42,12 +42,14 @@ fun TodosScreen(
     val spacing = LocalSpacing.current
     val actions = listOf("Task Done", "Remove Image", "Remove Location", "Delete Task")
     val showProgressBar = remember { mutableStateOf(false) }
+    val context = LocalContext.current
     val onItemClicked: (Todo) -> Unit = {
         navController.navigate(Screen.AddOrUpdateTodoScreen.route + "/${it.id}")
     }
 
     val onOptionsMenuSelected: (String, Todo) -> Unit = { action, todo ->
         viewModel.onOptionMenuSelected(actions.indexOf(action), todo)
+        context.showToast("Successfully Removed")
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
