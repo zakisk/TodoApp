@@ -52,7 +52,7 @@ class AddOrUpdateViewModel @Inject constructor(
         if (title.value.length < 5) result += "Please fill title\n"
         if (description.value.length < 10) result += "Please fill description\n"
         if (imageUri.value == null) result += "Please set image\n"
-        if (location.value == null) result += "Please set location\n"
+        if (location.value == null) result += "Please set location"
         return result
     }
 
