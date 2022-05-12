@@ -17,12 +17,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.myassignment.data.entities.Todo
 import com.example.myassignment.ui.theme.LocalSpacing
 import com.example.myassignment.util.asFormatted
+import com.example.myassignment.util.showToast
 
 
 @Composable
@@ -37,6 +39,7 @@ fun TodoListItem(
     val smallSpacing = LocalSpacing.current.small
     val shape = RoundedCornerShape(4.dp)
     val expanded = remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Row(
         modifier = Modifier
@@ -90,6 +93,8 @@ fun TodoListItem(
                     .clickable {
                         if (todo.location != null) {
                             onLocationClicked(todo)
+                        } else {
+                            context.showToast("You haven't set Location yet")
                         }
                     }
                     .padding(smallSpacing)

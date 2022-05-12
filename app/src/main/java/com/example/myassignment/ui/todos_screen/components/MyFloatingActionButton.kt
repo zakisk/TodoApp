@@ -24,7 +24,9 @@ fun BoxScope.MyFloatingActionButton(onClick: () -> Unit) {
         onClick = { onClick() },
         backgroundColor = Color.PrussianBlue,
         elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 2.dp),
-        modifier = Modifier.align(Alignment.BottomEnd).padding(spacing.medium)
+        modifier = Modifier
+            .align(Alignment.BottomEnd)
+            .padding(spacing.medium)
     ) {
         Icon(imageVector = Icons.Default.Add, contentDescription = null, tint = Color.White)
     }

@@ -57,6 +57,7 @@ android {
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
+            exclude 'META-INF/rxjava.properties'
         }
     }
 }
@@ -84,15 +85,15 @@ dependencies {
     implementation "androidx.room:room-runtime:$room_version"
     androidTestImplementation "androidx.room:room-testing:$room_version"
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
 
-    implementation "androidx.compose.runtime:runtime-livedata:1.2.0-alpha08"
+    implementation "androidx.compose.runtime:runtime-livedata:1.2.0-beta01"
 
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1"
 
     //navigation
-    implementation "androidx.navigation:navigation-compose:2.5.0-beta01"
+    implementation "androidx.navigation:navigation-compose:2.5.0-rc01"
 
     implementation 'com.google.android.gms:play-services-maps:18.0.2'
     implementation 'com.google.android.gms:play-services-location:19.0.1'

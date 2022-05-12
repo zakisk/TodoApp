@@ -10,7 +10,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,8 +20,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.myassignment.domain.model.Location
 import com.example.myassignment.ui.Screen
-import com.example.myassignment.ui.add_or_edit_todo_screen.components.CloseIcon
-import com.example.myassignment.ui.add_or_edit_todo_screen.components.Map
 import com.example.myassignment.ui.add_or_edit_todo_screen.components.MyButton
 import com.example.myassignment.ui.add_or_edit_todo_screen.components.MyTextField
 import com.example.myassignment.ui.theme.LocalSpacing
@@ -29,26 +27,26 @@ import com.example.myassignment.ui.theme.PrussianBlue
 import com.example.myassignment.ui.todos_screen.components.TodoImage
 import com.example.myassignment.util.Constants.INSERT
 import com.example.myassignment.util.showToast
-import com.google.android.gms.maps.model.LatLng
 
 
 @Composable
 fun AddOrUpdateTodoScreen(
     viewModel: AddOrUpdateViewModel = hiltViewModel(),
     navController: NavHostController,
-    selectImage: () -> Unit,
     uri: Uri?,
-    typeOfOperation: String
+    currentLocation: Location?,
+    typeOfOperation: String,
+    selectImage: () -> Unit,
+    getCurrentLocation: () -> Unit,
+    checkStoragePermission: () -> Boolean,
+    checkLocationPermission: () -> Boolean,
+    requestStoragePermissions: () -> Unit,
+    requestLocationPermissions: () -> Unit
 ) {
     uri?.let { viewModel.imageUri.value = it }
+    currentLocation?.let { viewModel.location.value = it }
 
-    var showMap by remember { mutableStateOf(false) }
     val spacing = LocalSpacing.current
-    val onMapClicked: (LatLng) -> Unit = {
-        viewModel.location.value =
-            Location(it.latitude, it.longitude, viewModel.locationName.value.ifBlank { null })
-    }
-
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
@@ -60,7 +58,13 @@ fun AddOrUpdateTodoScreen(
                     isDone = viewModel.isDone.value,
                     widthFraction = 0.4f,
                     height = 180.dp,
-                    onClick = { selectImage() }
+                    onClick = {
+                        if (checkStoragePermission()) {
+                            selectImage()
+                        } else {
+                            requestStoragePermissions()
+                        }
+                    }
                 )
             }
 
@@ -75,11 +79,6 @@ fun AddOrUpdateTodoScreen(
                     placeholderText = "Description",
                     singleLine = false
                 )
-
-                MyTextField(
-                    text = viewModel.locationName,
-                    placeholderText = "Location Name"
-                )
             }
 
             item {
@@ -91,7 +90,11 @@ fun AddOrUpdateTodoScreen(
                         .border(width = 0.3.dp, color = Color.PrussianBlue, shape = shape)
                         .padding(spacing.small)
                         .clickable {
-                            showMap = true
+                            if (checkLocationPermission()) {
+                                getCurrentLocation()
+                            } else {
+                                requestLocationPermissions()
+                            }
                         },
                     horizontalArrangement = Arrangement.Center
                 ) {
@@ -102,10 +105,10 @@ fun AddOrUpdateTodoScreen(
                         modifier = Modifier.padding(spacing.small)
                     )
                     Text(
-                        text = if (typeOfOperation == INSERT || viewModel.location.value == null)
+                        text = if (viewModel.location.value == null)
                             "Add Location"
                         else
-                            "Update Location",
+                            viewModel.location.value!!.name ?: "N/A",
                         modifier = Modifier.padding(spacing.small)
                     )
                 }
@@ -115,9 +118,8 @@ fun AddOrUpdateTodoScreen(
             item {
                 val context = LocalContext.current
                 MyButton(text = typeOfOperation) {
-                    val isValid = viewModel.title.value.length >= 5 &&
-                            viewModel.description.value.length >= 10
-                    if (isValid) {
+                    val result = viewModel.validate()
+                    if (result.isEmpty()) {
                         if (typeOfOperation == INSERT) {
                             viewModel.insertTodo()
                         } else {
@@ -125,19 +127,9 @@ fun AddOrUpdateTodoScreen(
                         }
                         navController.popBackStack(Screen.TodosScreen.route, inclusive = false)
                     } else {
-                        context.showToast("Please fill all fields")
+                        context.showToast(result)
                     }
                 }
-            }
-        }
-
-        if (showMap) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                Map(location = viewModel.location, onMapClicked = onMapClicked)
-                CloseIcon { showMap = false }
             }
         }
     }

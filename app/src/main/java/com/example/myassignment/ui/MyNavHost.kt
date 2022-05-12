@@ -7,7 +7,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.myassignment.domain.model.Location
 import com.example.myassignment.ui.add_or_edit_todo_screen.AddOrUpdateTodoScreen
 import com.example.myassignment.ui.map_screen.MapScreen
 import com.example.myassignment.ui.todos_screen.TodosScreen
@@ -16,13 +18,20 @@ import com.example.myassignment.util.Constants.UPDATE
 
 @Composable
 fun MyNavHost(
-    navController: NavHostController,
+    navController: NavHostController = rememberNavController(),
     uri: MutableState<Uri?>,
-    selectImage: () -> Unit
+    currentLocation: MutableState<Location?>,
+    selectImage: () -> Unit,
+    getCurrentLocation: () -> Unit,
+    checkStoragePermission: () -> Boolean,
+    checkLocationPermission: () -> Boolean,
+    requestStoragePermissions: () -> Unit,
+    requestLocationPermissions: () -> Unit
 ) {
 
     navController.addOnDestinationChangedListener { _, _, _ ->
         uri.value = null
+        currentLocation.value = null
     }
 
     NavHost(
@@ -41,9 +50,15 @@ fun MyNavHost(
             val typeOfOperation = if (id == -1) INSERT else UPDATE
             AddOrUpdateTodoScreen(
                 navController = navController,
-                selectImage = selectImage,
                 uri = uri.value,
-                typeOfOperation = typeOfOperation
+                currentLocation = currentLocation.value,
+                typeOfOperation = typeOfOperation,
+                selectImage = selectImage,
+                getCurrentLocation = getCurrentLocation,
+                checkStoragePermission = checkStoragePermission,
+                checkLocationPermission = checkLocationPermission,
+                requestStoragePermissions = requestStoragePermissions,
+                requestLocationPermissions = requestLocationPermissions
             )
         }
 

@@ -33,7 +33,6 @@ class AddOrUpdateViewModel @Inject constructor(
                     location.value = todo.location
                     imageUri.value = todo.imageUri
                     isDone.value = todo.isDone
-                    locationName.value = location.value?.name ?: ""
                 }
             }
         }
@@ -46,11 +45,19 @@ class AddOrUpdateViewModel @Inject constructor(
     val location: MutableState<Location?> = mutableStateOf(null)
     val imageUri: MutableState<Uri?> = mutableStateOf(null)
     val isDone: MutableState<Boolean> = mutableStateOf(false)
-    val locationName: MutableState<String> = mutableStateOf("")
+
+
+    fun validate() : String {
+        var result = ""
+        if (title.value.length < 5) result += "Please fill title\n"
+        if (description.value.length < 10) result += "Please fill description\n"
+        if (imageUri.value == null) result += "Please set image\n"
+        if (location.value == null) result += "Please set location\n"
+        return result
+    }
 
 
     fun insertTodo() = viewModelScope.launch {
-        location.value?.name = locationName.value
         val todo = Todo(
             id = 0,
             title = title.value,
@@ -64,7 +71,6 @@ class AddOrUpdateViewModel @Inject constructor(
     }
 
     fun updateTodo() = viewModelScope.launch {
-        location.value?.name = locationName.value
         val todo = Todo(
             id = id,
             title = title.value,

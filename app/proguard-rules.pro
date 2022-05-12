@@ -21,3 +21,7 @@
 #-renamesourcefileattribute SourceFile
 
 -keep public class com.example.myassignment.util.ExtensionsKt
+
+-keepclasseswithmembers class * {
+    native <methods>;
+}
