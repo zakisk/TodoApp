@@ -22,6 +22,6 @@
 
 -keep public class com.example.myassignment.util.ExtensionsKt
 
--keepclasseswithmembers class * {
-    native <methods>;
-}
+-dontwarn com.yalantis.ucrop**
+-keep class com.yalantis.ucrop** { *; }
+-keep interface com.yalantis.ucrop** { *; }

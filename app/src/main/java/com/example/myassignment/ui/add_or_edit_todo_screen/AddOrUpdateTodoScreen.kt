@@ -127,7 +127,7 @@ fun AddOrUpdateTodoScreen(
                         }
                         navController.popBackStack(Screen.TodosScreen.route, inclusive = false)
                     } else {
-                        context.showToast(result)
+                        context.showToast(result.replace("\n", ""))
                     }
                 }
             }

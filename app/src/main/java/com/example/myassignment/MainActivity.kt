@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -21,8 +22,14 @@ import androidx.compose.runtime.mutableStateOf
 import com.example.myassignment.domain.model.Location
 import com.example.myassignment.ui.MyNavHost
 import com.example.myassignment.ui.theme.MyApp
+import com.example.myassignment.util.getUri
 import com.example.myassignment.util.showToast
-import com.google.android.gms.location.*
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.yalantis.ucrop.UCrop
+import com.yalantis.ucrop.UCropActivity
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -36,6 +43,18 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+    private val editImage =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val uri = result.data?.getParcelableExtra<Uri>(UCrop.EXTRA_OUTPUT_URI)
+                val error = UCrop.getError(result.data!!)
+                error.let {
+                    Log.d("Main", "error: ${it?.message}")
+                }
+                imageUri.value = uri
+            }
+        }
+
     private val takePhoto =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
@@ -46,6 +65,7 @@ class MainActivity : ComponentActivity() {
                         Intent.FLAG_GRANT_READ_URI_PERMISSION
                     )
                     imageUri.value = uri
+                    imageUri.value?.let { startEditImage() }
                 }
             }
         }
@@ -57,6 +77,7 @@ class MainActivity : ComponentActivity() {
             ) {
                 if (it.all { entry -> entry.value }) {
                     getCurrentLocation()
+                    showToast("all permissions granted")
                 }
             } else {
                 if (it.all { entry -> entry.value }) {
@@ -96,6 +117,24 @@ class MainActivity : ComponentActivity() {
     }
 
 
+    private val startEditImage: () -> Unit = {
+        val cropOptionsBundle = Bundle().apply {
+            putParcelable(UCrop.EXTRA_INPUT_URI, imageUri.value!!)
+            putParcelable(UCrop.EXTRA_OUTPUT_URI, getUri())
+            putFloat(UCrop.EXTRA_ASPECT_RATIO_X, 16f)
+            putFloat(UCrop.EXTRA_ASPECT_RATIO_Y, 9f)
+            putInt(UCrop.EXTRA_MAX_SIZE_X, 400)
+            putInt(UCrop.EXTRA_MAX_SIZE_Y, 720)
+        }
+
+        val intent = Intent(this, UCropActivity::class.java).apply {
+            putExtras(cropOptionsBundle)
+        }
+
+        editImage.launch(intent)
+    }
+
+
     @SuppressLint("MissingPermission")
     private val getCurrentLocation: () -> Unit = {
         if (isLocationEnabled()) {
@@ -105,6 +144,7 @@ class MainActivity : ComponentActivity() {
                 fastestInterval = 5000
                 priority = LocationRequest.PRIORITY_HIGH_ACCURACY
             }
+
 
             fusedLocationClient.requestLocationUpdates(
                 locationRequest,
